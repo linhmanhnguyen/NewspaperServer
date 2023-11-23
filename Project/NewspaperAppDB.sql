@@ -1,8 +1,6 @@
 create database Newspaper;
 use Newspaper;
 
-DROP database Newspaper;
-
 CREATE TABLE Users (
   IDUser INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   email CHAR(100),
@@ -91,4 +89,61 @@ SELECT *
 FROM Users
 INNER JOIN Accounts ON Users.email = Accounts.email;
 
+CREATE TABLE Category (
+IDCategory INT PRIMARY KEY,
+nameCategory VARCHAR(100)
+);
 
+INSERT INTO Category VALUES 
+(1, 'Mới nhất'),
+(2, 'Thế giới'),
+(3, 'Thể thao'),
+(4, 'Khoa học'),
+(5, 'Pháp luật'),
+(6, 'Giải trí'),
+(7, 'Du lịch');
+
+
+CREATE TABLE Posts (
+IDPosts INT auto_increment PRIMARY KEY,
+IDUser INT,
+IDCategory INT,
+image VARCHAR(1000),
+title VARCHAR(100),
+link VARCHAR(1000),
+pubDate VARCHAR(100),
+content TEXT,
+contentSnippet TEXT,
+guid VARCHAR(1000),
+isoDate varchar(100),
+foreign key (IDUser) references Users(IDUser),
+foreign key (IDCategory) references Category(IDCategory)
+);
+
+INSERT INTO Posts VALUES 
+(1,1,1,'imgPost1.png','post1','','23/11/2023','abc','','','');
+
+
+CREATE TABLE Comments(
+IDComment INT PRIMARY KEY NOT NULL,
+IDUser INT NOT NULL,
+IDPost INT NOT NULL,
+content TEXT NOT NULL,
+pupdate VARCHAR(50) NOT NULL,
+foreign key (IDUser) references Users(IDUser),
+foreign key (IDPost) references Posts(IDPosts)
+);
+
+
+insert into Comments(IDComment, IDUser, IDPost, content, pupdate) values
+(1, 1, 1, 'Làm việc với tỉnh Hậu Giang, Bộ trưởng Huỳnh Thành Đạt đề xuất các giải pháp để khoa học công nghệ 
+trở thành động lực, tạo ra những giải pháp đột phá, thúc đẩy phát triển kinh tế.', '2023/07/20'),
+(2, 2, 1, 'GS Nguyễn Cửu Khoa dùng công nghệ nano hóa dược chất trong thuốc y học cổ truyền, giúp tăng hiệu quả, 
+giảm thời gian điều trị so với thuốc đông y truyền thống.', '2023/07/20'),
+(3, 3, 1, 'Đại học quốc gia TP HCM ký hợp tác với tỉnh Hậu Giang nhằm đẩy mạnh hoạt động khoa học công nghệ, đổi mới sáng tạo,
+ trong đó chú trọng đào tạo nhân lực.', '2023/07/20');
+
+
+SELECT * FROM Posts;
+SELECT * FROM Category;
+SELECT * FROM Comments;
