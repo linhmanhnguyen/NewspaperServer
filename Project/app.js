@@ -12,6 +12,8 @@ var md5 = require('md5');
 
 app.use(bodyParser.json())
 
+// Accounts
+// Đăng nhập
 app.post('/accounts/login', (req, res) => {
     
     const { email, password_of_user } = req.body;
@@ -29,7 +31,7 @@ app.post('/accounts/login', (req, res) => {
     });
 });
 
-
+//Đăng ký
 app.post('/accounts/register', (req, res) => {
   const { email, password_of_user, full_name, date_of_birth } = req.body;
 
@@ -73,8 +75,7 @@ app.post('/accounts/register', (req, res) => {
   });
 });
 
-
-
+//Đổi mật khẩu
 app.put('/accounts/changePassword', (req, res) => {
 
     const { email, oldPassword, newPassword } = req.body;
@@ -99,6 +100,7 @@ app.put('/accounts/changePassword', (req, res) => {
     });
 });
 
+// Quên mật khẩu, thay đổi mật khẩu và gửi mật khẩu mới vào gmail người dùng
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -149,6 +151,7 @@ const transporter = nodemailer.createTransport({
       });
   });
 
+// Lấy ra danh sách tài khoản
 app.get('/accounts', (req, res) => {
     db.query('SELECT * FROM Accounts', (error, results) => {
         if (error) {
@@ -158,6 +161,81 @@ app.get('/accounts', (req, res) => {
             res.json(results);
         }
     });    
+});
+
+// Crawl dữ liệu từ website vnexpress
+
+const Parser = require('rss-parser');
+const parser = new Parser();
+
+(async () => {
+  const rssLinks = [
+    'https://vnexpress.net/rss/tin-moi-nhat.rss',
+    'https://vnexpress.net/rss/the-gioi.rss',
+    'https://vnexpress.net/rss/the-thao.rss',
+    'https://vnexpress.net/rss/khoa-hoc.rss',
+    'https://vnexpress.net/rss/phap-luat.rss',
+    'https://vnexpress.net/rss/giai-tri.rss',
+    'https://vnexpress.net/rss/du-lich.rss',
+  ];
+  let IDCategory = 1;
+  for (const rssLink of rssLinks) {
+    try {
+      const feed = await parser.parseURL(rssLink);
+
+      for (const item of feed.items) {
+        const title = item.title;
+        const link = item.link;
+        const pubDate = item.pubDate;
+        const content = item.content;
+        const contentSnippet = item.contentSnippet;
+        const guid = item.guid;
+        const isoDate = item.isoDate;
+    
+
+        const sqlInsert = 'INSERT INTO Posts(IDUser, IDCategory, IDStatus, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [1,IDCategory, 1,"img.png", title, link, pubDate, content, contentSnippet, guid, isoDate];
+
+        db.query(sqlInsert, values, (error, results) => {
+          if (error) {
+            console.error('Lỗi thêm bài viết:', error);
+          } else {
+            console.log('Bài viết đã được thêm thành công');
+          }
+        });
+      }
+      IDCategory++; 
+    } catch (error) {
+      console.error('Lỗi lấy danh sách item:', error);
+    }
+  }
+})();
+
+// lấy ra danh sách bài viết
+
+app.get('/posts', (req, res) => {
+  db.query('SELECT * FROM Posts', (error, results) => {
+    if (error){
+      console.error('Lỗi truy vấn', error);
+      res.status(500).send('Lỗi server');
+    }else{
+      res.json(results);
+    }
+  })
+});
+
+
+// lấy ra danh sách thể loại bài viết
+
+app.get('/posts/category', (req, res) => {
+  db.query('SELECT * FROM Category', (error, results) => {
+    if(error){
+      console.log('Lỗi truy vấn', error);
+      res.status(500).send('Lỗi server');
+    }else{
+      res.json(results);
+    }
+  })
 });
 
 app.listen(port, () => {
