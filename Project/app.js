@@ -165,51 +165,45 @@ app.get('/accounts', (req, res) => {
 
 // Crawl dữ liệu từ website vnexpress
 
-const Parser = require('rss-parser');
-const parser = new Parser();
+// const Parser = require('rss-parser');
+// const parser = new Parser();
 
-(async () => {
-  const rssLinks = [
-    'https://vnexpress.net/rss/tin-moi-nhat.rss',
-    'https://vnexpress.net/rss/the-gioi.rss',
-    'https://vnexpress.net/rss/the-thao.rss',
-    'https://vnexpress.net/rss/khoa-hoc.rss',
-    'https://vnexpress.net/rss/phap-luat.rss',
-    'https://vnexpress.net/rss/giai-tri.rss',
-    'https://vnexpress.net/rss/du-lich.rss',
-  ];
-  let IDCategory = 1;
-  for (const rssLink of rssLinks) {
-    try {
-      const feed = await parser.parseURL(rssLink);
+// (async () => {
+//   const rssLinks = [
+//     'https://vnexpress.net/rss/tin-moi-nhat.rss'
+//   ];
+//   let IDCategory = 1;
+//   for (const rssLink of rssLinks) {
+//     try {
+//       const feed = await parser.parseURL(rssLink);
 
-      for (const item of feed.items) {
-        const title = item.title;
-        const link = item.link;
-        const pubDate = item.pubDate;
-        const content = item.content;
-        const contentSnippet = item.contentSnippet;
-        const guid = item.guid;
-        const isoDate = item.isoDate;
+//       for (const item of feed.items) {
+//         const title = item.title;
+//         const link = item.link;
+//         const pubDate = item.pubDate;
+//         const content = item.content;
+//         const contentSnippet = item.contentSnippet;
+//         const guid = item.guid;
+//         const isoDate = item.isoDate;
     
 
-        const sqlInsert = 'INSERT INTO Posts(IDUser, IDCategory, IDStatus, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const values = [1,IDCategory, 1,"img.png", title, link, pubDate, content, contentSnippet, guid, isoDate];
+//         const sqlInsert = 'INSERT INTO Posts(IDUser, IDCategory, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+//         const values = [1,IDCategory, 1 , title, link, pubDate, content, contentSnippet, guid, isoDate];
 
-        db.query(sqlInsert, values, (error, results) => {
-          if (error) {
-            console.error('Lỗi thêm bài viết:', error);
-          } else {
-            console.log('Bài viết đã được thêm thành công');
-          }
-        });
-      }
-      IDCategory++; 
-    } catch (error) {
-      console.error('Lỗi lấy danh sách item:', error);
-    }
-  }
-})();
+//         db.query(sqlInsert, values, (error, results) => {
+//           if (error) {
+//             console.error('Lỗi thêm bài viết:', error);
+//           } else {
+//             console.log('Bài viết đã được thêm thành công');
+//           }
+//         });
+//       }
+//       IDCategory++; 
+//     } catch (error) {
+//       console.error('Lỗi lấy danh sách item:', error);
+//     }
+//   }
+// })();
 
 // lấy ra danh sách bài viết
 
@@ -227,7 +221,7 @@ app.get('/posts', (req, res) => {
 
 // lấy ra danh sách thể loại bài viết
 
-app.get('/posts/category', (req, res) => {
+app.get('/category', (req, res) => {
   db.query('SELECT * FROM Category', (error, results) => {
     if(error){
       console.log('Lỗi truy vấn', error);
